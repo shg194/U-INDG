@@ -111,5 +111,4 @@ International Conference on Management of Data (San Diego, California) (SIGMOD
 
 3. Ji Zhang, Wenlu Wang, Xunfei Jiang, Wei-Shinn Ku, and Hua Lu. 2019. An
 MBR-Oriented Approach for Efficient Skyline Query Processing. In 2019 IEEE
-35th International Conference on Data Engineering (ICDE). 806–817. https://doi.
-org/10.1109/ICDE.2019.00077
+35th International Conference on Data Engineering (ICDE). 806–817. https://doi.org/10.1109/ICDE.2019.00077
