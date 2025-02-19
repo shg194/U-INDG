@@ -32,7 +32,7 @@ public class RZRegion {
         this.d = d;
         this.minzt = (BitSet) minzt.clone();
         this.maxzt = (BitSet) maxzt.clone();
-        BitSet[] rzRegion = Utils.getRZRegion(minzt, maxzt, d);
+        BitSet[] rzRegion = utils.getRZRegion(minzt, maxzt, d);
         minpt = Utils.fromZtoP(rzRegion[0], d);
         maxpt = Utils.fromZtoP(rzRegion[1], d);
     }
