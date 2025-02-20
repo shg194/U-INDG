@@ -24,9 +24,9 @@ public class RZRegion {
     /**
      * Constructs an RZRegion object with the specified dimensionality and minimum and maximum points in Z-order curve representation.
      *
-     * @param d      the dimensionality of the space
-     * @param minzt  the minimum point in Z-order curve representation
-     * @param maxzt  the maximum point in Z-order curve representation
+     * @param d     the dimensionality of the space
+     * @param minzt the minimum point in Z-order curve representation
+     * @param maxzt the maximum point in Z-order curve representation
      */
     public RZRegion(int d, BitSet minzt, BitSet maxzt) {
         this.d = d;
@@ -40,8 +40,8 @@ public class RZRegion {
     /**
      * Constructs an RZRegion object with the specified dimensionality and a single point, treating it as both the minimum and maximum.
      *
-     * @param d      the dimensionality of the space
-     * @param pt     the point coordinates
+     * @param d  the dimensionality of the space
+     * @param pt the point coordinates
      */
     public RZRegion(int d, long[] pt) {
         this.d = d;
