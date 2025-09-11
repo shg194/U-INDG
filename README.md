@@ -17,6 +17,9 @@
   results demonstrate that **U-INDG** shows significant improvements when extended to multiple index structures, and the 
   query efficiency across various datasets outperforms that of state-of-the-art algorithms.
 
+  If you use this code in your research, please cite the following paper: Song, H., Wu, Z., Guo, B. et al. An efficient approach towards index structures for skyline queries. J. King Saud Univ. Comput. Inf. Sci. 37, 154 (2025). https://doi.org/10.1007/s44443-025-00183-3
+  
+
 ------------------------------------
 ## Algorithms
 
