@@ -25,17 +25,6 @@
 
   The following algorithms have been implemented in **U-INDG**:
   
-  * **BBS** : Located in [src/myshgs/Others/BBS](src/myshgs/Others/BBS).
-    It is a representative algorithm, which can still maintain high query efficiency in low-dimensional space.
-  
-  * **MBR-Oriented** : Located in [src/myshgs/Others/MBR_Oriented](src/myshgs/Others/MBR_Oriented).
-    It is a novel approach that improves skyline computation efficiency by minimizing the cost of object comparison over MBRs.
-    Two MBRs packaging methods are adopted, one is STR in [./MBRSKY](./MBRSKY), and the other is Z-order in [./MBRs_Zorder](./MBRs_Zorder).
-  
-  * **ZSearch** : Located in [src/myshgs/Others/ZSearch](src/myshgs/Others/ZSearch).
-    It is a suite of novel and efficient skyline algorithms, which does not require dominance tests on all
-    skyline objects to determine whether an object is a skyline object.
-  
   * **U-INDG** : Located in [src/myshgs/MyApproaches](src/myshgs/MyApproaches).
     It is an index-oriented framework for skyline queries, which is extend to various index structures, such as Quad-Tree, Quad<sup>∗</sup>-Tree(a variant of Quad-Tree that addresses the low node utilization
     and fan-out issues of Quad-Tree in high-dimensional space ), ZBTree, and R-Tree. These implementations are referred to as 
@@ -55,16 +44,6 @@
 ------------------------------------
 
 ## Datasets
-
-  For reproducibility of the experiments, we include four datasets.
-  
-  * The [Vehicle](src/source/vehicles7D-390585.txt) dataset was originally obtained from [https://tokyo.craigslist.org.](https://tokyo.craigslist.org.);
-
-  * The [Housing](src/source/house9D-227570.txt) dataset was originally obtained from [https://www.zillow.com/research/data/.](https://www.zillow.com/research/data/.);
-
-  * The [Covertype](src/source/covtype10D.txt) dataset was originally obtained from [https://archive.ics.uci.edu/dataset/31/covertype.](https://archive.ics.uci.edu/dataset/31/covertype.);
-
-  * The [Gas](src/source/htsensor8D.txt) dataset was originally obtained from [https://archive.ics.uci.edu/dataset/362/gas+sensors+for+home+activity+monitoring.](https://archive.ics.uci.edu/dataset/362/gas+sensors+for+home+activity+monitoring.); 
 
   These datasets contain correlated, anti-correlated, independent, and intensive datasets.
 
@@ -93,11 +72,6 @@
    ```
 3. Open the project using IDEA (Integrated Development Environment).
 4. Configure project jdk.
-5. Run the project:
-
-   Enter [src/myshgs/Experiments](src/myshgs/Experiments), except [AlgorithmResult.java](src%2Fmyshgs%2FExperiments%2FAlgorithmResult.java), each class represents one of the experiments. 
-
-   For example, [BenchmarkAntCap.java](src/myshgs/Experiments/BenchmarkAntCap.java) means an experimental run comparison of inverse correlation data sets at different data cardinalities, and so on.
 
 ------------------------------------
 
