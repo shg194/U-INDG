@@ -52,12 +52,11 @@ public class IZBTree {
      * @param last The pointer of ending.
      * @param skyline The list of skyline points.
      * @param p The point to check.
-     * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      * @return true if p is dominated by any point in the specified range, otherwise false.
      */
-    public boolean SDominate(int pre, int last, List<long[]> skyline, long[] p, long[] count) {
+    public boolean SDominate(int pre, int last, List<long[]> skyline, long[] p) {
         for (int i = pre; i < last; i++) {
-            if (Utils.isDominatedBy(skyline.get(i), p, count))
+            if (Utils.isDominatedBy(skyline.get(i), p))
                 return true;
         }
         return false;
@@ -73,9 +72,9 @@ public class IZBTree {
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      * @return true if p is dominated by any point in the subtree, otherwise false.
      */
-    public boolean isDominate(ZBNode node, long[] p, int curNum, List<long[]> skyline, long[] count) {
+    public boolean isDominate(ZBNode node, long[] p, int curNum, List<long[]> skyline) {
         if (curNum < 1000) {
-            return !SDominate(0, skyline.size(), skyline, p, count);
+            return !SDominate(0, skyline.size(), skyline, p);
         }
 
         // Identification NDG
@@ -101,7 +100,7 @@ public class IZBTree {
                         int last = block.skyline[1];
 
                         if (last - pre > 0) {
-                            if (Utils.isDominatedBy(block.minpt, p, count)) {
+                            if (Utils.isDominatedBy(block.minpt, p)) {
                                 stack.add(bmbr);
                                 record.put(bmbr, block);
                             }
@@ -112,11 +111,10 @@ public class IZBTree {
                         ZBNode block = parent.getChildren(i);
                         RZRegion bmbr = parent.getDatas(i);
 
-                        count[1]++;
                         int pre = block.skyline[0];
                         int last = block.skyline[1];
                         if (last - pre > 0) {
-                            if (Utils.isDominatedBy(block.minpt, p, count)) {
+                            if (Utils.isDominatedBy(block.minpt, p)) {
                                 stack.add(bmbr);
                                 record.put(bmbr, block);
                             }
@@ -125,19 +123,17 @@ public class IZBTree {
                 }
             }
             cur = parent;
-            count[1]++;
         }
 
         while (!stack.isEmpty()) {
             RZRegion pop = stack.pop();
             ZBNode poll = record.remove(pop);
-            count[1]++;
 
             if (poll instanceof ZBDirNode zds) {
                 int[] its = zds.skyline;
 
                 if (its[1] - its[0] <= Q) {
-                    if (SDominate(its[0], its[1], skyline, p, count)) {
+                    if (SDominate(its[0], its[1], skyline, p)) {
                         return false;
                     }
                 } else {
@@ -145,11 +141,10 @@ public class IZBTree {
                         ZBNode block = zds.getChildren(i);
                         RZRegion number = zds.getDatas(i);
 
-                        count[1]++;
                         int pre = block.skyline[0];
                         int last = block.skyline[1];
                         if (last - pre > 0) {
-                            if (Utils.isDominatedBy(block.minpt, p, count)) {
+                            if (Utils.isDominatedBy(block.minpt, p)) {
                                 stack.add(number);
                                 record.put(number, block);
                             }
@@ -158,12 +153,12 @@ public class IZBTree {
                 }
             } else {
                 ZBDataNode n = (ZBDataNode) poll;
-                if (SDominate(n.skyline[0], n.skyline[1], skyline, p, count)) {
+                if (SDominate(n.skyline[0], n.skyline[1], skyline, p)) {
                     return false;
                 }
             }
         }
-        return !SDominate(curNum, skyline.size(), skyline, p, count);
+        return !SDominate(curNum, skyline.size(), skyline, p);
     }
 
     /**
@@ -173,7 +168,7 @@ public class IZBTree {
      * @return A list of points that form the skyline.
      */
 
-    public List<long[]> skyline(long[] count) {
+    public List<long[]> skyline() {
         List<long[]> skyline = new ArrayList<>();
         Stack<RZRegion> deque = new Stack<>();
         HashMap<RZRegion, ZBNode> record = new HashMap<>();
@@ -196,7 +191,6 @@ public class IZBTree {
         ZBDirNode r = (ZBDirNode) root;
 
         for (int i = r.getUsedSpace() - 1; i >= 0; i--) {
-            count[1]++;
             deque.add(r.getDatas(i));
             record.put(r.getDatas(i), r.getChildren(i));
         }
@@ -206,12 +200,10 @@ public class IZBTree {
             ZBNode node = record.remove(pop);
             int[] its = node.skyline;
             its[0] = its[1] = skyline.size();
-            count[1]++;
 
             if (isDominate(node, node.minpt, curNum, skyline, count)) {
                 if (node instanceof ZBDirNode r2) {
                     for (int i = node.getUsedSpace() - 1; i >= 0; i--) {
-                        count[1]++;
                         deque.add(node.getDatas(i));
                         record.put(r2.getDatas(i), r2.getChildren(i));
                     }
@@ -226,7 +218,6 @@ public class IZBTree {
                     int num = its[1] - curNum;
                     if (its[1] != its[0]) {
                         ZBNode parent = node.getParent();
-                        count[1]++;
                         if (parent != null) {
                             parent.skyline[1] = its[1];
                             updatePointer.add(parent);
@@ -240,7 +231,7 @@ public class IZBTree {
                 }
             }
         }
-        updatePP(updatePointer, count);
+        updatePP(updatePointer);
         return skyline;
     }
 
@@ -251,7 +242,7 @@ public class IZBTree {
      * @param set A collection of nodes that need to be processed
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      */
-    public void updatePP(Set<ZBNode> set, long[] count) {
+    public void updatePP(Set<ZBNode> set) {
         // 当节点集合不为空时，继续处理
         while (!set.isEmpty()) {
             // 创建一个新的集合，用于存储当前处理轮次中所有节点的父节点
@@ -260,8 +251,6 @@ public class IZBTree {
             for (ZBNode p : set) {
                 // 获取当前节点的父节点
                 ZBNode parent = p.getParent();
-                // 增加处理计数
-                count[1]++;
                 // 如果父节点存在，则更新父节点的属性，并将其添加到新的集合中
                 if (parent != null) {
                     // 更新父节点的属性为当前节点和父节点属性的较大值
