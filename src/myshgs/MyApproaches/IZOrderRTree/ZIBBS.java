@@ -46,12 +46,11 @@ public class ZIBBS {
      * @param last The pointer of ending.
      * @param skyline The list of skyline points.
      * @param p The point to check.
-     * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      * @return true if p is dominated by any point in the specified range, otherwise false.
      */
-    public boolean SDominate(int pre, int last, List<long[]> skyline, long[] p, long[] count) {
+    public boolean SDominate(int pre, int last, List<long[]> skyline, long[] p) {
         for (int i = pre; i < last; i++) {
-            if (Utils.isDominatedBy(skyline.get(i), p, count))
+            if (Utils.isDominatedBy(skyline.get(i), p))
                 return true;
         }
         return false;
@@ -64,12 +63,11 @@ public class ZIBBS {
      * @param mbr the object
      * @param curNum the current number of skyline points processed
      * @param skyline the list of skyline points
-     * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      * @return true if the MBR is dominated; otherwise false
      */
-    public boolean isDominate(Node node, MBR mbr, int curNum, List<long[]> skyline, long[] count) {
+    public boolean isDominate(Node node, MBR mbr, int curNum, List<long[]> skyline) {
         if (curNum < 1000) {
-            return !SDominate(0, skyline.size(), skyline, mbr.getMin(), count);
+            return !SDominate(0, skyline.size(), skyline, mbr.getMin());
         }
 
         //Looking for NDG of objects
@@ -90,12 +88,11 @@ public class ZIBBS {
                         Node block = parent.getChild(cur.pos);
                         MBR bmbr = parent.datas[cur.pos];
 
-                        count[1]++;
                         int pre = block.skyline[0];
                         int last = block.skyline[1];
 
                         if (last - pre > 0) {
-                            if (Utils.isDominatedBy(bmbr.getMin(), mbr.getMin(), count)) {
+                            if (Utils.isDominatedBy(bmbr.getMin(), mbr.getMin())) {
                                 stack.add(bmbr);
                                 record.put(bmbr, block);
                             }
@@ -106,11 +103,10 @@ public class ZIBBS {
                         Node block = parent.getChild(i);
                         MBR bmbr = parent.datas[i];
 
-                        count[1]++;
                         int pre = block.skyline[0];
                         int last = block.skyline[1];
                         if (last - pre > 0) {
-                           if (Utils.isDominatedBy(bmbr.getMin(), mbr.getMin(), count)) {
+                           if (Utils.isDominatedBy(bmbr.getMin(), mbr.getMin())) {
                                 stack.add(bmbr);
                                 record.put(bmbr, block);
                             }
@@ -119,19 +115,17 @@ public class ZIBBS {
                 }
             }
             cur = parent;
-            count[1]++;
         }
 
         while (!stack.isEmpty()) {
             MBR pop = stack.pop();
             Node poll = record.remove(pop);
-            count[1]++;
 
             if (poll instanceof RTDirNode zds) {
                 int[] its = zds.skyline;
 
                 if (its[1] - its[0] <= Q) {
-                    if (SDominate(its[0], its[1], skyline, mbr.getMin(), count)) {
+                    if (SDominate(its[0], its[1], skyline, mbr.getMin())) {
                         return false;
                     }
                 } else {
@@ -139,12 +133,11 @@ public class ZIBBS {
                         Node block = zds.getChild(i);
                         MBR bmbr = zds.datas[i];
 
-                        count[1]++;
                         int pre = block.skyline[0];
                         int last = block.skyline[1];
 
                         if (last - pre > 0) {
-                          if (Utils.isDominatedBy(bmbr.getMin(), mbr.getMin(), count)) {
+                          if (Utils.isDominatedBy(bmbr.getMin(), mbr.getMin())) {
                                 stack.add(bmbr);
                                 record.put(bmbr, block);
                             }
@@ -153,12 +146,12 @@ public class ZIBBS {
                 }
             } else {
                 RTDataNode n = (RTDataNode) poll;
-                if (SDominate(n.skyline[0], n.skyline[1], skyline, mbr.getMin(), count)) {
+                if (SDominate(n.skyline[0], n.skyline[1], skyline, mbr.getMin())) {
                     return false;
                 }
             }
         }
-        return !SDominate(curNum, skyline.size(), skyline, mbr.getMin(), count);
+        return !SDominate(curNum, skyline.size(), skyline, mbr.getMin());
     }
 
     /**
@@ -167,7 +160,7 @@ public class ZIBBS {
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      * @return the list of skyline points
      */
-    public List<long[]> skyline(long[] count) {
+    public List<long[]> skyline() {
         List<long[]> skyline = new ArrayList<>();
         Stack<MBR> deque = new Stack<>();
         HashMap<MBR, Node> record = new HashMap<>();
@@ -200,12 +193,10 @@ public class ZIBBS {
             Node node = record.remove(pop);
             int[] its = node.skyline;
             its[0] = its[1] = skyline.size();
-            count[1]++;
 
             if (isDominate(node, pop, curNum, skyline, count)) { // Rectangle is not dominated by current skyline, continue
                 if (node instanceof RTDirNode r2) {
                     for (int i = node.getUsedSpace() - 1; i >= 0; i--) {
-                        count[1]++;
                         deque.add(node.datas[i]);
                         record.put(r2.datas[i], r2.getChild(i));
                     }
@@ -222,21 +213,20 @@ public class ZIBBS {
                     int num = its[1] - curNum;
                     if (its[1] != its[0]) {
                         Node parent = node.getParent();
-                        count[1]++;
                         if (parent != null) {
                             parent.skyline[1] = its[1];
                             updatePointer.add(parent);
                         }
 
                         if (num > Q) {
-                            updatePP(updatePointer,count);
+                            updatePP(updatePointer);
                             curNum = its[1];
                         }
                     }
                 }
             }
         }
-        updatePP(updatePointer,count);
+        updatePP(updatePointer);
         return skyline;
     }
 
@@ -247,12 +237,11 @@ public class ZIBBS {
      * @param set A collection of nodes that need to be processed
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      */
-    public void updatePP(Set<Node> set,long[] count) {
+    public void updatePP(Set<Node> set) {
         while (!set.isEmpty()) {
             Set<Node> cur = new HashSet<>();
             for (Node p : set) {
                 Node parent = p.getParent();
-                count[1]++;
                 if (parent != null) {
                     parent.skyline[1] = Math.max(p.skyline[1], parent.skyline[1]);
                     cur.add(parent);
