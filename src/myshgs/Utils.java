@@ -59,11 +59,9 @@ public class Utils {
      *
      * @param a The first object.
      * @param b The second object.
-     * @param count A counter for the number of dominance test.
      * @return True if a is dominated by b, false otherwise.
      */
-    public static boolean isDominatedBy(long[] a, long[] b, long[] count) {
-        count[0]++;
+    public static boolean isDominatedBy(long[] a, long[] b) {
         boolean isDominated = false;
         for (int i = 0; i < a.length; i++) {
             if (b[i] > a[i]) {
@@ -122,8 +120,7 @@ public class Utils {
      * @param count A counter for the number of dominance test.
      * @return -1 if p1 dominates p2, 1 if p2 dominates p1, 0 otherwise.
      */
-    public static int DtDev(long[] p1, long[] p2, long[] count) {
-        count[0]++;
+    public static int DtDev(long[] p1, long[] p2) {
         boolean t1_better = false, t2_better = false;
         for (int d = 0; d < p1.length; d++) {
             t1_better = p1[d] < p2[d] || t1_better;
