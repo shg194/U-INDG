@@ -143,9 +143,9 @@ public class IQuadPlusTree {
      * @return true if p is dominated by any point in the specified range, otherwise false.
      */
 
-    public boolean SDominate(int pre, int last, List<long[]> skyline, long[] p, long[] count) {
+    public boolean SDominate(int pre, int last, List<long[]> skyline, long[] p) {
         for (int i = pre; i < last; i++) {
-            if (myshgs.Utils.isDominatedBy(skyline.get(i), p, count))
+            if (myshgs.Utils.isDominatedBy(skyline.get(i), p))
                 return true;
         }
         return false;
@@ -162,7 +162,7 @@ public class IQuadPlusTree {
      * @return true if the node is dominated by the skyline points; otherwise, false.
      */
 
-    public boolean isDominate(Node node, long[] minpt, int curNum, List<long[]> skyline, long[] count) {
+    public boolean isDominate(Node node, long[] minpt, int curNum, List<long[]> skyline) {
         // When the number of query points is less than 1000, use a simple domination check.
         if (curNum < 1000) {
             return !SDominate(0, skyline.size(), skyline, minpt, count);
@@ -186,7 +186,7 @@ public class IQuadPlusTree {
                         int pre = block.skyline[0];
                         int last = block.skyline[1];
 
-                        if (last - pre > 0 && myshgs.Utils.isDominatedBy(block.minpt, minpt, count)) {
+                        if (last - pre > 0 && myshgs.Utils.isDominatedBy(block.minpt, minpt)) {
                             stack.add(block);
                         }
 
@@ -198,7 +198,7 @@ public class IQuadPlusTree {
                         count[1]++;
                         int pre = block.skyline[0];
                         int last = block.skyline[1];
-                        if (last - pre > 0 && myshgs.Utils.isDominatedBy(block.minpt, minpt, count)) {
+                        if (last - pre > 0 && myshgs.Utils.isDominatedBy(block.minpt, minpt)) {
                             stack.add(block);
                         }
 
@@ -212,13 +212,12 @@ public class IQuadPlusTree {
         //dominance tests
         while (!stack.isEmpty()) {
             Node pop = stack.pop();
-            count[1]++;
 
             if (pop instanceof DirNode zds) {
                 int[] its = zds.skyline;
 
                 if (its[1] - its[0] <= Q) {
-                    if (SDominate(its[0], its[1], skyline, minpt, count)) {
+                    if (SDominate(its[0], its[1], skyline, minpt)) {
                         return false;
                     }
                 } else {
@@ -228,19 +227,19 @@ public class IQuadPlusTree {
                         int pre = block.skyline[0];
                         int last = block.skyline[1];
                         count[1]++;
-                        if (last - pre > 0 && myshgs.Utils.isDominatedBy(block.minpt, minpt, count)) {
+                        if (last - pre > 0 && myshgs.Utils.isDominatedBy(block.minpt, minpt)) {
                             stack.add(block);
                         }
                     }
                 }
             } else {
                 LeafNode n = (LeafNode) pop;
-                if (SDominate(n.skyline[0], n.skyline[1], skyline, minpt, count)) {
+                if (SDominate(n.skyline[0], n.skyline[1], skyline, minpt)) {
                     return false;
                 }
             }
         }
-        return !SDominate(curNum, skyline.size(), skyline, minpt, count);
+        return !SDominate(curNum, skyline.size(), skyline, minpt);
     }
     /**
      * Calculates the skyline.
@@ -250,7 +249,7 @@ public class IQuadPlusTree {
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      * @return Returns a list containing the points of the skyline.
      */
-    public List<long[]> skyline(long[] count) {
+    public List<long[]> skyline() {
         // Initialize the skyline list to store the resulting skyline points
         List<long[]> skyline = new ArrayList<>();
         // Use a stack for depth-first traversal of the tree structure
@@ -280,14 +279,12 @@ public class IQuadPlusTree {
             Node node = deque.pop();
             int[] its = node.skyline;
             its[0] = its[1] = skyline.size();
-            count[1]++;
 
             // Check if the current node's rectangle is dominated by the current skyline
             if (isDominate(node, node.minpt, curNum, skyline, count)) { // Rectangle is not dominated by current skyline, continue
                 // If the node is a directory node, add its child nodes to the stack
                 if (node instanceof DirNode r2) {
                     for (int i = node.usedSpace - 1; i >= 0; i--) {
-                        count[1]++;
                         deque.add(r2.child[i]);
                     }
                 } else {
@@ -295,7 +292,7 @@ public class IQuadPlusTree {
                     List<long[]> data = ((LeafNode) node).data;
 
                     for (long[] p : data) {
-                        if (isDominate(node, p, curNum, skyline, count)) {
+                        if (isDominate(node, p, curNum, skyline)) {
                             skyline.add(p);
                             its[1]++;
                         }
@@ -319,7 +316,7 @@ public class IQuadPlusTree {
             }
         }
         // Finally, update the pointers in updatePointer.
-        updatePP(updatePointer, count);
+        updatePP(updatePointer);
         return skyline;
     }
     /**
@@ -329,12 +326,11 @@ public class IQuadPlusTree {
      * @param set A collection of nodes that need to be processed
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      */
-    public void updatePP(Set<Node> set, long[] count) {
+    public void updatePP(Set<Node> set) {
         while (!set.isEmpty()) {
             Set<Node> cur = new HashSet<>();
             for (Node p : set) {
                 Node parent = p.getParent();
-                count[1]++;
                 if (parent != null) {
                     parent.skyline[1] = Math.max(p.skyline[1], parent.skyline[1]);
                     cur.add(parent);
