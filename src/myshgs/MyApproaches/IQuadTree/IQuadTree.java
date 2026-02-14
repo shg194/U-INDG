@@ -132,9 +132,9 @@ public class IQuadTree {
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      * @return true if p is dominated by any point in the specified range, otherwise false.
      */
-    public boolean SDominate(int pre, int last, List<long[]> skyline, long[] p, long[] count) {
+    public boolean SDominate(int pre, int last, List<long[]> skyline, long[] p) {
         for (int i = pre; i < last; i++) {
-            if (myshgs.Utils.isDominatedBy(skyline.get(i), p, count))
+            if (myshgs.Utils.isDominatedBy(skyline.get(i), p))
                 return true;
         }
         return false;
@@ -150,10 +150,10 @@ public class IQuadTree {
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      * @return true if the node is dominated by the skyline points; otherwise, false.
      */
-    public boolean isDominate(Node node, long[] minpt, int curNum, List<long[]> skyline, long[] count) {
+    public boolean isDominate(Node node, long[] minpt, int curNum, List<long[]> skyline) {
         // When the number of query points is less than 1000, use a simple domination check.
         if (curNum < 1000) {
-            return !SDominate(0, skyline.size(), skyline, minpt, count);
+            return !SDominate(0, skyline.size(), skyline, minpt);
         }
 
         Node cur = node;
@@ -170,12 +170,11 @@ public class IQuadTree {
 
                         Node block = parent.child[cur.pos];
 
-                        count[1]++;
                         int pre = block.skyline[0];
                         int last = block.skyline[1];
 
                         if (last - pre > 0) {
-                            if (myshgs.Utils.isDominatedBy(block.zmbr.min, minpt, count)) {
+                            if (myshgs.Utils.isDominatedBy(block.zmbr.min, minpt)) {
                                 stack.add(block);
                             }
                         }
@@ -193,12 +192,11 @@ public class IQuadTree {
                     for (int i = p + 1; i < bit.size(); i++) {
                         int pos = bit.get(i);
                         if ((pos & cur.pos) == pos) {
-                            count[1]++;
                             Node block = parent.child[pos];
                             int pre = block.skyline[0];
                             int last = block.skyline[1];
                             if (last - pre > 0) {
-                                if (myshgs.Utils.isDominatedBy(block.zmbr.min, minpt, count)) {
+                                if (myshgs.Utils.isDominatedBy(block.zmbr.min, minpt)) {
                                     stack.add(block);
                                 }
                             }
@@ -207,28 +205,25 @@ public class IQuadTree {
                 }
             }
             cur = parent;
-            count[1]++;
         }
 
         while (!stack.isEmpty()) {
             Node pop = stack.pop();
-            count[1]++;
 
             if (pop instanceof DirNode zds) {
                 int[] its = zds.skyline;
 
                 if (its[1] - its[0] <= Q) {
-                    if (SDominate(its[0], its[1], skyline, minpt, count)) {
+                    if (SDominate(its[0], its[1], skyline, minpt)) {
                         return false;
                     }
                 } else {
                     for (int i : zds.zmbr.bit) {
                         Node zbk = zds.child[i];
-                        count[1]++;
                         int pre = zbk.skyline[0];
                         int last = zbk.skyline[1];
                         if (last - pre > 0) {
-                            if (myshgs.Utils.isDominatedBy(zbk.zmbr.min, minpt, count)) {
+                            if (myshgs.Utils.isDominatedBy(zbk.zmbr.min, minpt)) {
                                 stack.add(zbk);
                             }
                         }
@@ -236,12 +231,12 @@ public class IQuadTree {
                 }
             } else {
                 LeafNode n = (LeafNode) pop;
-                if (SDominate(n.skyline[0], n.skyline[1], skyline, minpt, count)) {
+                if (SDominate(n.skyline[0], n.skyline[1], skyline, minpt)) {
                     return false;
                 }
             }
         }
-        return !SDominate(curNum, skyline.size(), skyline, minpt, count);
+        return !SDominate(curNum, skyline.size(), skyline, minpt);
     }
 
     /**
@@ -252,7 +247,7 @@ public class IQuadTree {
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      * @return Returns a list containing the points of the skyline.
      */
-    public List<long[]> skyline(long[] count) {
+    public List<long[]> skyline() {
         // Initialize the skyline list to store the resulting skyline points
         List<long[]> skyline = new ArrayList<>();
         // Use a stack for depth-first traversal of the tree structure
@@ -285,7 +280,6 @@ public class IQuadTree {
             ZIMBRA zm = node.zmbr;
             int[] its = node.skyline;
             its[0] = its[1] = skyline.size();
-            count[1]++;
 
             // Check if the current node's rectangle is dominated by the current skyline
             if (isDominate(node, node.zmbr.min, curNum, skyline, count)) {
@@ -294,13 +288,11 @@ public class IQuadTree {
                     int size = zm.bit.size();
                     int pi = zm.bit.get(0);
                     if (pi == this.len && zm.bit.get(size - 1) == 0) {
-                        count[1]++;
                         pi = 1;
                     } else {
                         pi = 0;
                     }
                     for (int i = pi; i < size; i++) {
-                        count[1]++;
                         Node zbk = zdb.child[zm.bit.get(i)];
                         deque.add(zbk);
                     }
@@ -317,7 +309,7 @@ public class IQuadTree {
                     int num = its[1] - curNum;
                     if (its[1] != its[0]) {
                         Node parent = node.getParent();
-                        count[1]++;
+                    
                         if (parent != null) {
                             parent.skyline[1] = its[1];
                             updatePointer.add(parent);
@@ -332,7 +324,7 @@ public class IQuadTree {
             }
         }
         // Finally, update the pointers in updatePointer.
-        updatePP(updatePointer, count);
+        updatePP(updatePointer);
         return skyline;
     }
     /**
@@ -342,11 +334,10 @@ public class IQuadTree {
      * @param set A collection of nodes that need to be processed
      * @param count An array used to record the number of dominance test and accessing nodes during the computation process, count[0]: the number of dominance test,count[1]: the number of accessing nodes
      */
-    public void updatePP(Set<Node> set, long[] count) {
+    public void updatePP(Set<Node> set) {
         while (!set.isEmpty()) {
             Set<Node> cur = new HashSet<>();
             for (Node p : set) {
-                count[1]++;
                 Node parent = p.getParent();
                 if (parent != null) {
                     parent.skyline[1] = Math.max(p.skyline[1], parent.skyline[1]);
